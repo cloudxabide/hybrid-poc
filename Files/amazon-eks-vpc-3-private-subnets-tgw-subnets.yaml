@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Amazon EKS Sample VPC - Private and Public subnets'
+Description: 'Amazon EKS Sample VPC - Private, Public and TGW subnets'
 
 Parameters:
 
@@ -71,7 +71,6 @@ Metadata:
           - TGWSubnet01Block
           - TGWSubnet02Block
           - TGWSubnet03Block
-
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -131,6 +130,36 @@ Resources:
         Value: Private Subnet AZ3
       - Key: Network
         Value: Private03
+
+  TGWRouteTable01:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: TGW Subnet AZ1
+      - Key: Network
+        Value: TGW01
+
+  TGWRouteTable02:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: TGW Subnet AZ2
+      - Key: Network
+        Value: TGW02
+
+  TGWRouteTable03:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: TGW Subnet AZ3
+      - Key: Network
+        Value: TGW03
  
   PublicRoute:
     DependsOn: VPCGatewayAttachment
@@ -167,6 +196,36 @@ Resources:
     Type: AWS::EC2::Route
     Properties:
       RouteTableId: !Ref PrivateRouteTable03
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway03
+
+  TGWRoute01:
+    DependsOn:
+    - VPCGatewayAttachment
+    - NatGateway01
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref TGWRouteTable01
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway01
+
+  TGWRoute02:
+    DependsOn:
+    - VPCGatewayAttachment
+    - NatGateway02
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref TGWRouteTable02
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway02
+
+  TGWRoute03:
+    DependsOn:
+    - VPCGatewayAttachment
+    - NatGateway03
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref TGWRouteTable03
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NatGateway03
 
@@ -296,7 +355,7 @@ Resources:
   PrivateSubnet01:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Subnet 03
+      Comment: Subnet 01
     Properties:
       AvailabilityZone:
         Fn::Select:
@@ -353,6 +412,60 @@ Resources:
       - Key: kubernetes.io/role/internal-elb
         Value: 1
 
+  TGWSubnet01:
+    Type: AWS::EC2::Subnet
+    Metadata:
+      Comment: TGWSubnet 01
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - '0'
+        - Fn::GetAZs:
+            Ref: AWS::Region
+      CidrBlock:
+        Ref: TGWSubnet01Block
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-TGWSubnet01"
+
+  TGWSubnet02:
+    Type: AWS::EC2::Subnet
+    Metadata:
+      Comment: TGW Subnet 02
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - '1'
+        - Fn::GetAZs:
+            Ref: AWS::Region
+      CidrBlock:
+        Ref: TGWSubnet02Block
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-TGWSubnet02"
+
+  TGWSubnet03:
+    Type: AWS::EC2::Subnet
+    Metadata:
+      Comment: TGW Subnet 03
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - '2'
+        - Fn::GetAZs:
+            Ref: AWS::Region
+      CidrBlock:
+        Ref: TGWSubnet03Block
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-TGWSubnet03"
+
   PublicSubnet01RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -389,6 +502,24 @@ Resources:
       SubnetId: !Ref PrivateSubnet03
       RouteTableId: !Ref PrivateRouteTable03
 
+  TGWSubnet01RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref TGWSubnet01
+      RouteTableId: !Ref TGWRouteTable01
+
+  TGWSubnet02RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref TGWSubnet02
+      RouteTableId: !Ref TGWRouteTable02
+
+  TGWSubnet03RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref TGWSubnet03
+      RouteTableId: !Ref TGWRouteTable03
+
   ControlPlaneSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -399,7 +530,7 @@ Outputs:
 
   SubnetIds:
     Description: Subnets IDs in the VPC
-    Value: !Join [ ",", [ !Ref PublicSubnet01, !Ref PublicSubnet02, !Ref PublicSubnet03,!Ref PrivateSubnet01, !Ref PrivateSubnet02, !Ref PrivateSubnet03 ] ]
+    Value: !Join [ ",", [ !Ref PublicSubnet01, !Ref PublicSubnet02, !Ref PublicSubnet03,!Ref PrivateSubnet01, !Ref PrivateSubnet02, !Ref PrivateSubnet03, !Ref TGWSubnet01, !Ref TGWSubnet02, !Ref TGWSubnet03 ] ]
 
   SecurityGroups:
     Description: Security group for the cluster control plane communication with worker nodes
