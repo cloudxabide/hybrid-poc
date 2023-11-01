@@ -9,47 +9,47 @@ Parameters:
     Default: 10.1.0.0/16
     Description: The CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range.
 
-  subnetPublic1CidrBlock:
+  subnet-public1-Block:
     Type: String
     Default: 10.1.0.0/19
     Description: CidrBlock for public subnet 01 within the VPC
 
-  subnetPublic2CidrBlock:
+  subnet-public2-Block:
     Type: String
     Default: 10.1.32.0/19
     Description: CidrBlock for public subnet 02 within the VPC
 
-  subnetPublic3CidrBlock:
+  subnet-public3-3Block:
     Type: String
     Default: 10.1.64.0/19
     Description: CidrBlock for public subnet 03 within the VPC
 
-  subnetPrivate1CidrBlock:
+  subnet-private1-Block:
     Type: String
     Default: 10.1.96.0/19
     Description: CidrBlock for private subnet 01 within the VPC
 
-  subnetPrivate2CidrBlock:
+  subnet-private2-Block:
     Type: String
     Default: 10.1.128.0/19
     Description: CidrBlock for private subnet 02 within the VPC
 
-  subnetPrivate3CidrBlock:
+  subnet-private3-Block:
     Type: String
     Default: 10.1.160.0/19
     Description: CidrBlock for private subnet 03 within the VPC
 
-  subnetTgw1CidrBlock:
+  subnet-tgw1-Block:
     Type: String
     Default: 10.1.192.0/28
     Description: CidrBlock for TGW subnet 01 within the VPC
 
-  subnetTgw2CidrBlock:
+  subnet-tgw2-Block:
     Type: String
     Default: 10.1.192.16/28
     Description: CidrBlock for TGW subnet 02 within the VPC
 
-  subnetTgw3CidrBlock:
+  subnet-tgw3-Block:
     Type: String
     Default: 10.1.192.32/28
     Description: CidrBlock for TGW subnet 03 within the VPC
@@ -62,15 +62,15 @@ Metadata:
           default: "Worker Network Configuration"
         Parameters:
           - VpcBlock
-          - subnet-public1-CidrBlock
-          - subnetPublic2CidrBlock
-          - subnet-public33-CidrBlock
-          - subnetPrivate1CidrBlock
-          - subnetPrivate2CidrBlock
-          - subnetPrivate3CidrBlock
-          - subnetTgw1CidrBlock
-          - subnetTgw2CidrBlock
-          - subnetTgw3CidrBlock
+          - subnet-public1Block
+          - subnet-public2Block
+          - subnet-public33Block
+          - subnet-private1Block
+          - subnet-private2Block
+          - subnet-private3Block
+          - subnet-tgw1Block
+          - subnet-tgw2Block
+          - subnet-tgw3Block
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -292,7 +292,7 @@ Resources:
   subnet-public1:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Public Subnet 01
+      Comment: Subnet 01
     Properties:
       MapPublicIpOnLaunch: true
       AvailabilityZone:
@@ -301,7 +301,7 @@ Resources:
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
-        Ref: subnet-public1-CidrBlock
+        Ref: subnet-public1Block
       VpcId:
         Ref: VPC
       Tags:
@@ -313,7 +313,7 @@ Resources:
   subnet-public2:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Public Subnet 02
+      Comment: Subnet 02
     Properties:
       MapPublicIpOnLaunch: true
       AvailabilityZone:
@@ -322,7 +322,7 @@ Resources:
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
-        Ref: subnetPublic2CidrBlock
+        Ref: subnet-public2Block
       VpcId:
         Ref: VPC
       Tags:
@@ -331,10 +331,10 @@ Resources:
       - Key: kubernetes.io/role/elb
         Value: 1
 
-  'subnet-public33':
+  subnet-public33:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Public Subnet 03
+      Comment: Subnet 03
     Properties:
       MapPublicIpOnLaunch: true
       AvailabilityZone:
@@ -343,7 +343,7 @@ Resources:
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
-        Ref: subnetPublic3CidrBlock
+        Ref: subnet-public33Block
       VpcId:
         Ref: VPC
       Tags:
@@ -355,7 +355,7 @@ Resources:
   subnet-private1:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Private Subnet 01
+      Comment: Subnet 01
     Properties:
       AvailabilityZone:
         Fn::Select:
@@ -363,7 +363,7 @@ Resources:
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
-        Ref: subnetPrivate1CidrBlock
+        Ref: subnet-private1Block
       VpcId:
         Ref: VPC
       Tags:
@@ -383,7 +383,7 @@ Resources:
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
-        Ref: subnetPrivate2CidrBlock
+        Ref: subnet-private2Block
       VpcId:
         Ref: VPC
       Tags:
@@ -403,7 +403,7 @@ Resources:
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
-        Ref: subnetPrivate3CidrBlock
+        Ref: subnet-private3Block
       VpcId:
         Ref: VPC
       Tags:
@@ -415,7 +415,7 @@ Resources:
   subnet-tgw1:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: TGW Subnet 01
+      Comment: TGWSubnet 01
     Properties:
       AvailabilityZone:
         Fn::Select:
@@ -423,7 +423,7 @@ Resources:
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
-        Ref: subnetTgw1CidrBlock
+        Ref: subnet-tgw1Block
       VpcId:
         Ref: VPC
       Tags:
@@ -441,7 +441,7 @@ Resources:
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
-        Ref: subnetTgw2CidrBlock
+        Ref: subnet-tgw2Block
       VpcId:
         Ref: VPC
       Tags:
@@ -459,62 +459,62 @@ Resources:
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
-        Ref: subnetTgw3CidrBlock
+        Ref: subnet-tgw3Block
       VpcId:
         Ref: VPC
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-subnet-tgw3"
 
-  subnet-public1-RouteTableAssociation:
+  subnet-public1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref subnet-public1
       RouteTableId: !Ref PublicRouteTable
 
-  subnetPublic2RouteTableAssociation:
+  subnet-public2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref subnet-public2
       RouteTableId: !Ref PublicRouteTable
 
-  subnetPublic33RouteTableAssociation:
+  subnet-public33RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref subnet-public33
       RouteTableId: !Ref PublicRouteTable
 
-  subnetPrivate1RouteTableAssociation:
+  subnet-private1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref subnet-private1
       RouteTableId: !Ref PrivateRouteTable01
 
-  subnetPrivate2RouteTableAssociation:
+  subnet-private2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref subnet-private2
       RouteTableId: !Ref PrivateRouteTable02
 
-  subnetPrivate3RouteTableAssociation:
+  subnet-private3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref subnet-private3
       RouteTableId: !Ref PrivateRouteTable03
 
-  subnetTgw1RouteTableAssociation:
+  subnet-tgw1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref subnet-tgw1
       RouteTableId: !Ref TGWRouteTable01
 
-  subnetTgw2RouteTableAssociation:
+  subnet-tgw2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref subnet-tgw2
       RouteTableId: !Ref TGWRouteTable02
 
-  subnetTgw3RouteTableAssociation:
+  subnet-tgw3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref subnet-tgw3
